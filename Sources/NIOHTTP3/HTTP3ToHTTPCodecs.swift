@@ -65,7 +65,9 @@ extension HTTPRequestPart: HTTPMessagePart {
         let path = request.path
         let authority = request.authority
         let host = request.headerFields[.init(parsed: "host")!]
-        if request.method != .connect {
+        // Extended CONNECT (RFC 9220): a CONNECT with a :protocol pseudo-header
+        // includes :scheme and :path and is validated like a normal request.
+        if request.method != .connect || request.extendedConnectProtocol != nil {
             // All HTTP/3 requests MUST include exactly one value for the :method, :scheme, and :path pseudo-header fields, unless the request is a CONNECT request
             guard let scheme else {
                 throw invalidHeadersError(message: "Missing scheme", location: .here())
